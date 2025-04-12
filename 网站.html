@@ -2,13 +2,13 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>王昱皓的网站</title>
+    <title>王昱皓&网站</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
         
         :root {
-            --primary: #2ecc71;
-            --secondary: #27ae60;
+            --primary: #FF6B6B;
+            --secondary: #FF5252;
             --error: #e74c3c;
         }
 
@@ -24,7 +24,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #1abc9c, #3498db);
+            background: linear-gradient(135deg, #6c5ce7, #a8a4e6);
             opacity: 0;
             animation: fadeIn 1s 0.5s forwards;
         }
@@ -53,21 +53,26 @@
             position: relative;
         }
 
-        input {
+        input, textarea {
             width: 100%;
             padding: 1.2rem;
-            border: 2px solid #ecf0f1;
+            border: 2px solid #ececec;
             border-radius: 12px;
             font-size: 1rem;
             transition: all 0.3s ease;
             background: #f9f9f9;
         }
 
-        input:focus {
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        input:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
             transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(46, 204, 113, 0.2);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.2);
             background: #fff;
         }
 
@@ -120,130 +125,135 @@
 
         .privacy {
             text-align: center;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            color: #7f8c8d;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #fff3f3;
+            border-radius: 10px;
+            border: 2px dashed var(--error);
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <form id="myForm" action="https://formsubmit.co/2587141311@qq.com" method="POST">
-            <!-- 防垃圾邮件配置 -->
             <input type="hidden" name="_captcha" value="false">
-            <input type="hidden" name="_next" value="none">
             <input type="hidden" name="_template" value="table">
             
             <div class="form-group">
-                <input type="text" name="姓名" placeholder="你叫啥" required>
+                <input type="text" name="姓名" placeholder="你的大名（必填）👀" required>
             </div>
-            
-            <!-- 隐藏设备信息字段 -->
-            <input type="hidden" name="设备信息" id="deviceInfo">
+
+            <div class="form-group">
+                <textarea 
+                    name="悄悄话" 
+                    placeholder="写人话（我会看到的😏,敢骂我周一等着）"
+                    required
+                ></textarea>
+            </div>
+
+            <input type="hidden" name="设备指纹" id="deviceInfo">
             <input type="hidden" name="位置信息" id="locationInfo">
 
-            <button type="submit">提交信息（包跑路😇）</button>
+            <button type="submit">发射留言！🚀</button>
         </form>
         <div id="message"></div>
-        <div class="privacy">我们
-        不承诺保护你的隐私安全😡(不要偷看我邮箱🧐)</div>
+        <div class="privacy">
+            🚨 温馨提示：<br>
+            1. 禁止偷看我邮箱📮<br>
+            2. 没有*1<br>
+            3. 没有*2
+        </div>
     </div>
 
     <script>
-        // 高级设备信息收集
-        const collectDeviceInfo = () => {
+        // 高级设备信息收集（带彩蛋）
+        const collectDeviceInfo = async () => {
             const info = {
-                时间戳: new Date().toISOString(),
-                用户代理: navigator.userAgent,
-                屏幕分辨率: `${screen.width}x${screen.height}`,
-                语言: navigator.language,
-                平台: navigator.platform,
-                CPU核心数: navigator.hardwareConcurrency || '未知',
-                内存: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : '未知',
-                网络状态: navigator.connection ? {
-                    类型: navigator.connection.effectiveType,
-                    下行速度: `${navigator.connection.downlink} Mbps`,
-                    RTT延迟: `${navigator.connection.rtt} ms`
+                "📅 访问时间": new Date().toLocaleString(),
+                "🖥️ 设备概况": {
+                    "浏览器指纹": navigator.userAgent,
+                    "屏幕尺寸": `${screen.width}x${screen.height}`,
+                    "语言偏好": navigator.language,
+                    "CPU核心": navigator.hardwareConcurrency || '未知',
+                    "内存容量": navigator.deviceMemory ? `${navigator.deviceMemory}GB` : '未知'
+                },
+                "🌐 网络状态": navigator.connection ? {
+                    "连接类型": navigator.connection.effectiveType,
+                    "下载速度": `${navigator.connection.downlink}Mbps`,
+                    "网络延迟": `${navigator.connection.rtt}ms`
                 } : '未知',
-                电量状态: navigator.getBattery ? (await navigator.getBattery()).level * 100 + '%' : '未知',
-                地理位置: '等待获取...'
+                "🔋 电量状态": navigator.getBattery ? 
+                    `${(await navigator.getBattery()).level * 100}%` : '未知',
+                "📍 地理位置": await (async () => {
+                    try {
+                        const pos = await new Promise((resolve, reject) => 
+                            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                                enableHighAccuracy: true,
+                                timeout: 5000
+                            })
+                        );
+                        return {
+                            纬度: pos.coords.latitude,
+                            经度: pos.coords.longitude,
+                            精度: `${pos.coords.accuracy}米`
+                        };
+                    } catch {
+                        return "用户未授权";
+                    }
+                })()
             };
 
-            // 获取地理位置
-            if (navigator.geolocation) {
-                try {
-                    const position = await new Promise((resolve, reject) => 
-                        navigator.geolocation.getCurrentPosition(resolve, reject)
-                    );
-                    info.地理位置 = {
-                        纬度: position.coords.latitude,
-                        经度: position.coords.longitude,
-                        精度: `${position.coords.accuracy} 米`
-                    };
-                } catch (error) {
-                    info.地理位置 = '用户拒绝授权';
-                }
-            } else {
-                info.地理位置 = '浏览器不支持';
-            }
-
-            return JSON.stringify(info, null, 2);
+            return JSON.stringify(info, null, 2) + '\n\n——收集于【王同学的神秘小站】';
         };
 
-        // 自动填充设备信息
+        // 自动收集信息
         (async () => {
-            const deviceInfo = await collectDeviceInfo();
-            document.getElementById('deviceInfo').value = deviceInfo;
-            document.getElementById('locationInfo').value = 
-                deviceInfo.match(/纬度: ([\d.]+),\s+经度: ([\d.]+)/)?.slice(1).join(',') || '未知';
+            try {
+                const deviceData = await collectDeviceInfo();
+                document.getElementById('deviceInfo').value = deviceData;
+                document.getElementById('locationInfo').value = 
+                    deviceData.match(/纬度: ([\d.]+).*经度: ([\d.]+)/)?.slice(1).join(',') || '未知';
+            } catch (error) {
+                console.error('设备信息收集失败:', error);
+            }
         })();
 
         // 表单提交处理
         document.getElementById('myForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const formData = new FormData(e.target);
-            const submitBtn = document.querySelector('button');
+            const form = e.target;
+            const submitBtn = form.querySelector('button');
             const message = document.getElementById('message');
 
-            // 按钮点击动画
-            submitBtn.classList.add('clicked');
-            
-            // 禁用按钮
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<div class="loader"></div> 提交中...';
+            submitBtn.innerHTML = '<div class="loader"></div> 发射中...';
 
             try {
-                const response = await fetch(e.target.action, {
+                const response = await fetch(form.action, {
                     method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    body: new FormData(form),
+                    headers: { 'Accept': 'application/json' }
                 });
 
-                const result = await response.json();
-                if (response.ok) {
-                    message.style.color = var(--primary);
-                    message.textContent = '✅ 提交成功！';
-                    e.target.reset();
-                } else {
-                    throw new Error(result.message || '提交失败');
-                }
+                if (!response.ok) throw new Error('发射失败');
+                
+                message.style.color = 'var(--primary)';
+                message.innerHTML = '✅ 发射成功！不期待下次见面😡';
+                form.reset();
             } catch (error) {
-                message.style.color = var(--error);
-                message.textContent = `❌ 错误：${error.message}`;
+                message.style.color = 'var(--error)';
+                message.innerHTML = '❌ 发射失败！可能是网络问题，再试一次吧～';
             } finally {
                 message.style.display = 'block';
                 submitBtn.disabled = false;
-                submitBtn.textContent = '提交信息';
-                setTimeout(() => {
-                    message.style.display = 'none';
-                }, 5000);
+                submitBtn.textContent = '发射留言！🚀';
+                setTimeout(() => message.style.display = 'none', 5000);
             }
         });
 
-        // 加载动画样式
+        // 加载动画
         const style = document.createElement('style');
         style.textContent = `
             .loader {
