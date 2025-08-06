@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成就勋章管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #0a0a0a, #000000);
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #222;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #cd7f32, #c0c0c0, #ffd700);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        /* 统计面板样式 */
+        .stats-panel {
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+            border: 1px solid #222;
+        }
+        
+        .stats-title {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            color: #ffd700;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            min-width: 120px;
+        }
+        
+        .stat-count {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .bronze { color: #cd7f32; }
+        .iron { color: #c0c0c0; }
+        .gold { color: #ffd700; }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #aaa;
+        }
+        
+        /* 添加成就表单 */
+        .add-achievement {
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+            border: 1px solid #222;
+        }
+        
+        .section-title {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: #4d9de0;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        button {
+            background: linear-gradient(to right, #4d9de0, #3a86d9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(77, 157, 224, 0.4);
+        }
+        
+        .export-btn {
+            background: linear-gradient(to right, #ff9a00, #ff6b00);
+        }
+        
+        .import-btn {
+            background: linear-gradient(to right, #00c853, #009624);
+        }
+        
+        .delete-btn {
+            background: linear-gradient(to right, #e53935, #c62828);
+        }
+        
+        /* 勋章展示区 */
+        .achievements-container {
+            margin-top: 30px;
+        }
+        
+        .medals-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 10px;
+        }
+        
+        .medal-card {
+            background: rgba(25, 25, 25, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            border: 1px solid #222;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .medal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.8);
+        }
+        
+        .medal-header {
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .medal-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+        }
+        
+        .bronze-bg {
+            background: radial-gradient(circle at 30% 30%, #cd7f32, #8a5716);
+        }
+        
+        .iron-bg {
+            background: radial-gradient(circle at 30% 30%, #e0e0e0, #a0a0a0);
+        }
+        
+        .gold-bg {
+            background: radial-gradient(circle at 30% 30%, #ffd700, #d4af37);
+        }
+        
+        .medal-icon i {
+            font-size: 4rem;
+            color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .medal-body {
+            padding: 20px;
+            flex-grow: 1;
+        }
+        
+        .medal-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #fff;
+            min-height: 45px;
+        }
+        
+        .medal-type {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .bronze-type {
+            background: rgba(205, 127, 50, 0.2);
+            color: #cd7f32;
+        }
+        
+        .iron-type {
+            background: rgba(192, 192, 192, 0.2);
+            color: #c0c0c0;
+        }
+        
+        .gold-type {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+        
+        .medal-date {
+            margin-top: 15px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            grid-column: 1 / -1;
+            color: #666;
+            font-size: 1.2rem;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #444;
+        }
+        
+        /* 导入导出区域 */
+        .import-export {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .medals-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .import-export {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .import-export button {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stat-item {
+                width: 100%;
+            }
+            
+            .medals-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .medal-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+            border: 1px solid #333;
+        }
+        
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #ff6b00;
+            text-align: center;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #222;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-confirm {
+            background: linear-gradient(to right, #e53935, #c62828);
+            color: white;
+        }
+        
+        .modal-cancel {
+            background: #333;
+            color: #ddd;
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* 通知样式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background: rgba(30, 30, 30, 0.95);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left: 5px solid #4caf50;
+        }
+        
+        .notification.error {
+            border-left: 5px solid #f44336;
+        }
+        
+        .notification.warning {
+            border-left: 5px solid #ff9800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>成就勋章管理系统</h1>
+            <p class="subtitle">记录您的辉煌成就，展示您的荣誉勋章</p>
+        </header>
+        
+        <div class="stats-panel">
+            <h2 class="stats-title">成就统计</h2>
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-count bronze">0</div>
+                    <div class="stat-label">铜质勋章</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-count iron">0</div>
+                    <div class="stat-label">铁质勋章</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-count gold">0</div>
+                    <div class="stat-label">金质勋章</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-count">0</div>
+                    <div class="stat-label">总成就数</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="add-achievement">
+            <h2 class="section-title">添加新成就</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="achievement-name">成就名称</label>
+                    <input type="text" id="achievement-name" placeholder="例如：完成马拉松比赛">
+                </div>
+                
+                <div class="form-group">
+                    <label for="medal-type">勋章等级</label>
+                    <select id="medal-type">
+                        <option value="bronze">铜质勋章</option>
+                        <option value="iron">铁质勋章</option>
+                        <option value="gold">金质勋章</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="achievement-date">获得日期</label>
+                    <input type="date" id="achievement-date">
+                </div>
+            </div>
+            
+            <button id="add-achievement-btn">
+                <i class="fas fa-plus-circle"></i> 添加成就
+            </button>
+        </div>
+        
+        <div class="achievements-container">
+            <h2 class="section-title">我的成就勋章</h2>
+            <div class="medals-container" id="medals-container">
+                <!-- 成就勋章将在这里动态生成 -->
+                <div class="empty-state">
+                    <i class="fas fa-trophy"></i>
+                    <p>暂无成就记录，添加您的第一个成就吧！</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="import-export">
+            <button class="export-btn" id="export-btn">
+                <i class="fas fa-file-export"></i> 导出成就数据
+            </button>
+            <button class="import-btn" id="import-btn">
+                <i class="fas fa-file-import"></i> 导入成就数据
+            </button>
+            <button class="delete-btn" id="delete-btn">
+                <i class="fas fa-trash-alt"></i> 删除所有成就
+            </button>
+            <input type="file" id="file-input" style="display: none;" accept=".json">
+        </div>
+    </div>
+    
+    <!-- 删除确认模态框 -->
+    <div class="modal" id="delete-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">删除所有成就</h2>
+            <p style="margin-bottom: 20px; color: #ccc; text-align: center;">
+                此操作将永久删除所有成就数据，不可恢复！
+            </p>
+            <input type="password" id="delete-password" class="modal-input" placeholder="请输入删除密码 (123456000)">
+            <div class="modal-buttons">
+                <button class="modal-btn modal-confirm" id="confirm-delete">确认删除</button>
+                <button class="modal-btn modal-cancel" id="cancel-delete">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 通知 -->
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        // 成就数据
+        let achievements = [];
+        
+        // DOM 元素
+        const medalsContainer = document.getElementById('medals-container');
+        const addAchievementBtn = document.getElementById('add-achievement-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const deleteBtn = document.getElementById('delete-btn');
+        const fileInput = document.getElementById('file-input');
+        const deleteModal = document.getElementById('delete-modal');
+        const confirmDeleteBtn = document.getElementById('confirm-delete');
+        const cancelDeleteBtn = document.getElementById('cancel-delete');
+        const deletePasswordInput = document.getElementById('delete-password');
+        const notification = document.getElementById('notification');
+        
+        // 渲染成就勋章
+        function renderAchievements() {
+            medalsContainer.innerHTML = '';
+            
+            if (achievements.length === 0) {
+                medalsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-trophy"></i>
+                        <p>暂无成就记录，添加您的第一个成就吧！</p>
+                    </div>
+                `;
+                updateStats();
+                return;
+            }
+            
+            achievements.forEach(achievement => {
+                const medalCard = document.createElement('div');
+                medalCard.className = 'medal-card';
+                
+                let medalClass, medalText, medalIcon;
+                switch(achievement.type) {
+                    case 'bronze':
+                        medalClass = 'bronze-bg';
+                        medalText = 'bronze-type';
+                        medalIcon = 'fa-medal';
+                        break;
+                    case 'iron':
+                        medalClass = 'iron-bg';
+                        medalText = 'iron-type';
+                        medalIcon = 'fa-star';
+                        break;
+                    case 'gold':
+                        medalClass = 'gold-bg';
+                        medalText = 'gold-type';
+                        medalIcon = 'fa-trophy';
+                        break;
+                }
+                
+                medalCard.innerHTML = `
+                    <div class="medal-header">
+                        <div class="medal-icon ${medalClass}">
+                            <i class="fas ${medalIcon}"></i>
+                        </div>
+                    </div>
+                    <div class="medal-body">
+                        <h3 class="medal-title">${achievement.title}</h3>
+                        <div class="medal-type ${medalText}">${getMedalText(achievement.type)}勋章</div>
+                        <div class="medal-date">获得时间: ${achievement.date}</div>
+                    </div>
+                `;
+                
+                medalsContainer.appendChild(medalCard);
+            });
+            
+            updateStats();
+        }
+        
+        // 获取勋章文本
+        function getMedalText(type) {
+            switch(type) {
+                case 'bronze': return '铜质';
+                case 'iron': return '铁质';
+                case 'gold': return '金质';
+                default: return '';
+            }
+        }
+        
+        // 更新统计数据
+        function updateStats() {
+            const bronzeCount = achievements.filter(a => a.type === 'bronze').length;
+            const ironCount = achievements.filter(a => a.type === 'iron').length;
+            const goldCount = achievements.filter(a => a.type === 'gold').length;
+            const totalCount = achievements.length;
+            
+            document.querySelector('.stat-count.bronze').textContent = bronzeCount;
+            document.querySelector('.stat-count.iron').textContent = ironCount;
+            document.querySelector('.stat-count.gold').textContent = goldCount;
+            document.querySelectorAll('.stat-count')[3].textContent = totalCount;
+        }
+        
+        // 添加成就
+        addAchievementBtn.addEventListener('click', () => {
+            const nameInput = document.getElementById('achievement-name');
+            const typeInput = document.getElementById('medal-type');
+            const dateInput = document.getElementById('achievement-date');
+            
+            const name = nameInput.value.trim();
+            const type = typeInput.value;
+            const date = dateInput.value || new Date().toISOString().split('T')[0];
+            
+            if (!name) {
+                showNotification('请输入成就名称', 'error');
+                return;
+            }
+            
+            const newAchievement = {
+                id: Date.now(),
+                title: name,
+                type: type,
+                date: date
+            };
+            
+            achievements.unshift(newAchievement);
+            renderAchievements();
+            
+            // 保存到 localStorage
+            saveToLocalStorage();
+            
+            // 显示成功通知
+            showNotification('成就添加成功！', 'success');
+            
+            // 重置表单
+            nameInput.value = '';
+            typeInput.value = 'bronze';
+            dateInput.value = '';
+        });
+        
+        // 导出成就数据
+        exportBtn.addEventListener('click', () => {
+            if (achievements.length === 0) {
+                showNotification('没有成就数据可导出', 'warning');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(achievements, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'achievements_' + new Date().toISOString().slice(0, 10) + '.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            document.body.appendChild(linkElement);
+            linkElement.click();
+            document.body.removeChild(linkElement);
+            
+            showNotification('成就数据已成功导出！', 'success');
+        });
+        
+        // 导入成就数据
+        importBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        // 清空当前成就
+                        achievements.length = 0;
+                        
+                        // 添加导入的成就
+                        importedData.forEach(item => {
+                            achievements.push(item);
+                        });
+                        
+                        renderAchievements();
+                        saveToLocalStorage();
+                        showNotification(`成功导入 ${importedData.length} 项成就`, 'success');
+                    } else {
+                        showNotification('导入的文件格式不正确', 'error');
+                    }
+                } catch (error) {
+                    console.error('导入错误:', error);
+                    showNotification('导入失败，请检查文件格式', 'error');
+                }
+            };
+            reader.readAsText(file);
+            
+            // 重置文件输入
+            fileInput.value = '';
+        });
+        
+        // 删除所有成就
+        deleteBtn.addEventListener('click', () => {
+            if (achievements.length === 0) {
+                showNotification('没有成就可删除', 'warning');
+                return;
+            }
+            
+            // 显示删除确认模态框
+            deletePasswordInput.value = '';
+            deleteModal.style.display = 'flex';
+        });
+        
+        // 确认删除
+        confirmDeleteBtn.addEventListener('click', () => {
+            const password = deletePasswordInput.value;
+            if (password === '123456000') {
+                achievements = [];
+                renderAchievements();
+                saveToLocalStorage();
+                deleteModal.style.display = 'none';
+                showNotification('所有成就已成功删除', 'success');
+            } else {
+                showNotification('密码错误，删除操作被取消', 'error');
+            }
+        });
+        
+        // 取消删除
+        cancelDeleteBtn.addEventListener('click', () => {
+            deleteModal.style.display = 'none';
+        });
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', (event) => {
+            if (event.target === deleteModal) {
+                deleteModal.style.display = 'none';
+            }
+        });
+        
+        // 显示通知
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 保存到 localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('achievements', JSON.stringify(achievements));
+        }
+        
+        // 从 localStorage 加载
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('achievements');
+            if (savedData) {
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    if (Array.isArray(parsedData)) {
+                        achievements = parsedData;
+                    }
+                } catch (error) {
+                    console.error('加载数据错误:', error);
+                    showNotification('加载成就数据失败', 'error');
+                }
+            }
+        }
+        
+        // 初始化
+        function init() {
+            loadFromLocalStorage();
+            renderAchievements();
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+  </html>
